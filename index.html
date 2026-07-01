@@ -3,63 +3,71 @@
 <meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
 <title>AVRE Inbox</title>
 <style>
-:root{--blue:#2563eb;--bg:#f2f3f7;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e6e9f0;}
+:root{--blue:#2563eb;--out:#2563eb;--in:#e9eaee;--bg:#f5f6f8;--card:#fff;--ink:#0b1220;--muted:#6b7280;--line:#eceef2;}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
-#app{max-width:760px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
-header{background:var(--blue);color:#fff;padding:13px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(0,0,0,.14);position:sticky;top:0;z-index:10}
-header .back{cursor:pointer;font-size:23px;display:none;line-height:1}
-header .h-meta{display:flex;flex-direction:column;min-width:0}
-header .h-title{font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-header .h-sub{font-size:12px;opacity:.85}
-.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;vertical-align:middle;margin-left:2px}
+#app{max-width:780px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+header{background:var(--card);color:var(--ink);padding:9px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;min-height:56px}
+header .back{cursor:pointer;font-size:26px;color:var(--blue);display:none;line-height:1;padding:0 2px}
+header .h-meta{display:flex;flex-direction:column;min-width:0;flex:1}
+header .h-title{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+header .h-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .brand{font-weight:800;font-size:18px}
+.fublink{display:none;font-size:12px;font-weight:700;color:var(--blue);text-decoration:none;border:1px solid #c7d7fe;background:#eef4ff;padding:5px 10px;border-radius:999px;white-space:nowrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.02em;vertical-align:middle}
 .b-broker{background:#fef3c7;color:#92400e}
 .b-agent{background:#dbeafe;color:#1e40af}
 .b-admin{background:#ede9fe;color:#5b21b6}
 .b-partner{background:#ccfbf1;color:#0f766e}
 .b-client{background:#dcfce7;color:#166534}
-.b-unknown{background:#e2e8f0;color:#475569}
-#list{flex:1;overflow-y:auto}
-.row{display:flex;gap:12px;align-items:center;padding:11px 14px;background:var(--card);border-bottom:1px solid var(--line);cursor:pointer}
-.row:active{background:#f6f8fc}
-.avatar{width:46px;height:46px;border-radius:50%;flex:0 0 46px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.b-unknown{background:#eef1f5;color:#64748b}
+.avatar{border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+#list{flex:1;overflow-y:auto;background:var(--card)}
+.row{display:flex;gap:12px;align-items:center;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
+.row:active{background:#f2f4f8}
+.row .avatar{width:50px;height:50px;font-size:17px}
 .row .mid{flex:1;min-width:0}
-.row .top{display:flex;align-items:center;gap:6px}
-.row .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .snip{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.row .tm{color:var(--muted);font-size:11px;flex:0 0 auto;align-self:flex-start;margin-top:3px}
-#thread{flex:1;overflow-y:auto;padding:14px 12px;display:none;flex-direction:column}
-.msg{max-width:76%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.35;white-space:pre-wrap;word-wrap:break-word;margin:3px 0}
-.msg.in{background:#fff;color:var(--ink);align-self:flex-start;border:1px solid var(--line);border-bottom-left-radius:5px}
-.msg.out{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
-.msg img{max-width:230px;border-radius:12px;display:block;margin:3px 0}
+.row .top{display:flex;align-items:center;gap:7px}
+.row .nm{font-weight:600;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .snip{color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.row .tm{color:var(--muted);font-size:12px;flex:0 0 auto;align-self:flex-start;margin-top:2px}
+#thread{flex:1;overflow-y:auto;padding:12px 12px 6px;display:none;flex-direction:column}
+.grp{display:flex;flex-direction:column}
+.msg{max-width:74%;padding:8px 13px;border-radius:19px;font-size:15.5px;line-height:1.34;white-space:pre-wrap;word-wrap:break-word;margin:1.5px 0}
+.msg.in{background:var(--in);color:#0b1220;align-self:flex-start;border-bottom-left-radius:6px}
+.msg.out{background:var(--out);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.msg.in+.msg.out,.msg.out+.msg.in{margin-top:9px}
+.msg img{max-width:220px;border-radius:14px;display:block;margin:2px 0}
 .msg a.file{color:inherit;text-decoration:underline;font-size:14px}
-#composer{display:none;gap:8px;align-items:flex-end;padding:8px;background:var(--card);border-top:1px solid var(--line)}
-#pending{display:none;gap:6px;flex-wrap:wrap;padding:6px 10px 0;background:var(--card)}
-.chip{background:#eef2ff;border:1px solid #c7d2fe;border-radius:9px;padding:4px 8px;font-size:12px;display:flex;gap:6px;align-items:center;max-width:170px}
+.daysep{align-self:center;color:#9aa3af;font-size:11.5px;font-weight:600;margin:12px 0 6px}
+#composer{display:none;gap:8px;align-items:flex-end;padding:8px 10px;background:var(--card);border-top:1px solid var(--line)}
+#pending{display:none;gap:6px;flex-wrap:wrap;padding:8px 12px 0;background:var(--card)}
+.chip{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:4px 8px;font-size:12px;display:flex;gap:6px;align-items:center;max-width:170px}
 .chip img{width:26px;height:26px;object-fit:cover;border-radius:5px}
 .chip span.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip .x{cursor:pointer;color:#64748b;font-weight:700}
-#inp{flex:1;resize:none;border:1px solid #cbd5e1;border-radius:20px;padding:9px 14px;font-size:15px;max-height:120px;height:40px;font-family:inherit;outline:none}
+#inp{flex:1;resize:none;border:1px solid #d7dbe3;border-radius:22px;padding:9px 15px;font-size:15.5px;max-height:120px;height:42px;font-family:inherit;outline:none;background:#fff}
 #inp:focus{border-color:var(--blue)}
-.iconbtn{width:40px;height:40px;border-radius:50%;border:none;font-size:20px;cursor:pointer;flex:0 0 40px;display:flex;align-items:center;justify-content:center}
+.iconbtn{width:42px;height:42px;border-radius:50%;border:none;font-size:21px;cursor:pointer;flex:0 0 42px;display:flex;align-items:center;justify-content:center}
 #attach{background:#eef2ff;color:var(--blue)}
 #sendbtn{background:var(--blue);color:#fff}
-.empty{padding:44px 20px;text-align:center;color:var(--muted)}
+.empty{padding:48px 20px;text-align:center;color:var(--muted);line-height:1.6}
 </style></head>
 <body>
 <div id='app'>
   <header>
-    <span class='back' id='back'>&#8592;</span>
-    <div class='h-meta'><span class='h-title' id='title'>AVRE Inbox</span><span class='h-sub' id='subtitle'></span></div>
+    <span class='back' id='back'>&#8249;</span>
+    <div class='avatar' id='hava' style='width:38px;height:38px;font-size:14px;display:none'></div>
+    <div class='h-meta'><span class='h-title' id='title'><span class='brand'>AVRE Inbox</span></span><span class='h-sub' id='subtitle'></span></div>
+    <a class='fublink' id='fublink' target='_blank' rel='noopener'>FUB &#8599;</a>
   </header>
   <div id='list'></div>
   <div id='thread'></div>
   <div id='pending'></div>
   <div id='composer'>
     <button class='iconbtn' id='attach' title='Attach photo, GIF or PDF'>+</button>
-    <textarea id='inp' rows='1' placeholder='Message...'></textarea>
+    <textarea id='inp' rows='1' placeholder='Text message'></textarea>
     <button class='iconbtn' id='sendbtn' title='Send'>&#8593;</button>
     <input type='file' id='file' accept='image/*,application/pdf' style='display:none' multiple>
   </div>
@@ -74,24 +82,25 @@ function api(qs){return fetch(API+'?'+qs+'&k='+encodeURIComponent(KEY)).then(r=>
 function esc(t){const d=document.createElement('div');d.textContent=(t==null?'':t);return d.innerHTML;}
 function initials(s){s=(s||'').trim();if(!s)return '#';const p=s.split(' ').filter(Boolean);return ((p[0]?p[0][0]:'')+(p[1]?p[1][0]:'')).toUpperCase();}
 function hue(s){let h=0;s=s||'x';for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return h;}
-function avatar(name,phone){const t=name||phone||'#';return `<div class='avatar' style='background:hsl(${hue(t)},52%,54%)'>${esc(initials(name||''))}${name?'':'#'}</div>`;}
-function badge(kind,sub){if(kind==='roster'){const r=(sub||'').toLowerCase();let cls='b-agent';if(r.includes('broker')||r.includes('owner'))cls='b-broker';else if(r.includes('admin'))cls='b-admin';else if(r.includes('partner')||r.includes('lender')||r.includes('attorney'))cls='b-partner';return `<span class='badge ${cls}'>${esc(sub||'Team')}</span>`;}if(kind==='customer')return `<span class='badge b-client'>Client</span>`;return `<span class='badge b-unknown'>Unknown</span>`;}
+function avatarHtml(name,phone,size){const t=name||phone||'#';const px=size||50;return `<div class='avatar' style='width:${px}px;height:${px}px;font-size:${Math.round(px/3)}px;background:hsl(${hue(t)},50%,53%)'>${esc(initials(name||''))||'#'}</div>`;}
+function badge(kind,sub){const s=(sub||'').toLowerCase();if(kind==='agent'||kind==='roster'){let cls='b-agent';if(s.includes('broker')||s.includes('owner'))cls='b-broker';else if(s.includes('admin'))cls='b-admin';else if(s.includes('partner')||s.includes('lender')||s.includes('attorney')||s.includes('vendor'))cls='b-partner';return `<span class='badge ${cls}'>${esc(sub||'Team')}</span>`;}if(kind==='vendor')return `<span class='badge b-partner'>Vendor</span>`;if(kind==='customer')return `<span class='badge b-client'>Client</span>`;return `<span class='badge b-unknown'>Unknown</span>`;}
 function tshort(ts){try{const d=new Date(ts),n=new Date();return d.toDateString()===n.toDateString()?d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):d.toLocaleDateString([],{month:'short',day:'numeric'});}catch(e){return '';}}
+function dsep(ts){try{const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return 'Today';return d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}catch(e){return '';}}
 function isImg(m){const t=(m.type||'').toLowerCase(),u=(m.url||'').toLowerCase();return t.includes('image')||u.includes('.jpg')||u.includes('.jpeg')||u.includes('.png')||u.includes('.gif')||u.includes('.webp');}
 function mediaHtml(m){return isImg(m)?`<img src='${encodeURI(m.url)}' onerror='this.style.display=none'>`:`<a class='file' target='_blank' href='${encodeURI(m.url)}'>&#128206; Attachment</a>`;}
-function showList(){CUR=null;if(timer)clearInterval(timer);q('thread').style.display='none';q('composer').style.display='none';q('pending').style.display='none';q('list').style.display='block';q('back').style.display='none';q('title').textContent='AVRE Inbox';q('subtitle').textContent='';loadList();}
-function loadList(){ensureKey();api('action=list').then(d=>{const el=q('list');if(!d||!d.conversations||!d.conversations.length){el.innerHTML=`<div class='empty'>No conversations yet.<br>New texts to (305) 928-7328 appear here.</div>`;return;}el.innerHTML='';d.conversations.forEach(c=>{const nm=c.label||c.contact_pretty;const row=document.createElement('div');row.className='row';row.innerHTML=`${avatar(c.label,c.contact_pretty)}<div class='mid'><div class='top'><span class='nm'>${esc(nm)}</span>${badge(c.kind,c.sub)}</div><div class='snip'>${esc(c.last_body)}</div></div><span class='tm'>${tshort(c.last_at)}</span>`;row.onclick=()=>openThread(c.contact,c.label,c.kind,c.sub,c.contact_pretty);el.appendChild(row);});});}
-function setHeader(label,ph,kind,sub){q('title').innerHTML=`${esc(label||ph||'Conversation')} ${badge(kind,sub)}`;let s='';if(label&&ph)s=ph;if(kind==='customer'&&sub)s=(s?s+'  ·  ':'')+sub;q('subtitle').textContent=s;}
-function openThread(contact,label,kind,sub,ph){CUR=contact;pending=[];renderPending();q('list').style.display='none';q('thread').style.display='flex';q('composer').style.display='flex';q('back').style.display='inline';setHeader(label,ph,kind,sub);loadThread();if(timer)clearInterval(timer);timer=setInterval(loadThread,6000);}
-function loadThread(){ensureKey();api('action=thread&c='+encodeURIComponent(CUR)).then(d=>{if(!d)return;setHeader(d.label,d.contact_pretty,d.kind,d.sub);const el=q('thread');el.innerHTML='';(d.messages||[]).forEach(x=>{const b=document.createElement('div');b.className='msg '+(x.direction==='inbound'?'in':'out');let html='';(x.media||[]).forEach(m=>{html+=mediaHtml(m);});if(x.body)html+=esc(x.body);b.innerHTML=html;el.appendChild(b);});el.scrollTop=el.scrollHeight;});}
+function setHeader(label,ph,kind,sub,fub){q('hava').style.display='flex';q('hava').style.background='hsl('+hue(label||ph||'x')+',50%,53%)';q('hava').textContent=initials(label||'')||'#';q('title').innerHTML=`${esc(label||ph||'Conversation')} ${badge(kind,sub)}`;let s=(label?ph:'')||'';if(kind==='customer'&&sub)s=(s?s+'  ·  ':'')+sub;q('subtitle').textContent=s;const fl=q('fublink');if(fub){fl.href=fub;fl.style.display='inline';}else fl.style.display='none';}
+function showList(){CUR=null;if(timer)clearInterval(timer);q('thread').style.display='none';q('composer').style.display='none';q('pending').style.display='none';q('list').style.display='block';q('back').style.display='none';q('hava').style.display='none';q('fublink').style.display='none';q('title').innerHTML=`<span class='brand'>AVRE Inbox</span>`;q('subtitle').textContent='';loadList();}
+function loadList(){ensureKey();api('action=list').then(d=>{const el=q('list');if(!d||!d.conversations||!d.conversations.length){el.innerHTML=`<div class='empty'>No conversations yet.<br>Texts to (305) 928-7328 show up here.</div>`;return;}el.innerHTML='';d.conversations.forEach(c=>{const nm=c.label||c.contact_pretty;const row=document.createElement('div');row.className='row';row.innerHTML=`${avatarHtml(c.label,c.contact_pretty,50)}<div class='mid'><div class='top'><span class='nm'>${esc(nm)}</span>${badge(c.kind,c.sub)}</div><div class='snip'>${esc(c.last_body)}</div></div><span class='tm'>${tshort(c.last_at)}</span>`;row.onclick=()=>openThread(c.contact,c.label,c.kind,c.sub,c.contact_pretty,c.fub_url);el.appendChild(row);});});}
+function openThread(contact,label,kind,sub,ph,fub){CUR=contact;pending=[];renderPending();q('list').style.display='none';q('thread').style.display='flex';q('composer').style.display='flex';q('back').style.display='inline';setHeader(label,ph,kind,sub,fub);loadThread();if(timer)clearInterval(timer);timer=setInterval(loadThread,6000);}
+function loadThread(){ensureKey();api('action=thread&c='+encodeURIComponent(CUR)).then(d=>{if(!d)return;setHeader(d.label,d.contact_pretty,d.kind,d.sub,d.fub_url);const el=q('thread');el.innerHTML='';let lastDay='';(d.messages||[]).forEach(x=>{const day=dsep(x.at);if(day&&day!==lastDay){const sep=document.createElement('div');sep.className='daysep';sep.textContent=day;el.appendChild(sep);lastDay=day;}const b=document.createElement('div');b.className='msg '+(x.direction==='inbound'?'in':'out');let html='';(x.media||[]).forEach(m=>{html+=mediaHtml(m);});if(x.body)html+=esc(x.body);b.innerHTML=html;el.appendChild(b);});el.scrollTop=el.scrollHeight;});}
 function renderPending(){const p=q('pending');if(!pending.length){p.style.display='none';p.innerHTML='';return;}p.style.display='flex';p.innerHTML='';pending.forEach((m,i)=>{const c=document.createElement('div');c.className='chip';const thumb=(m.type||'').includes('image')?`<img src='${m.url}'>`:'&#128206;';c.innerHTML=`${thumb}<span class='nm'>${esc(m.name||'file')}</span><span class='x' data-i='${i}'>&times;</span>`;p.appendChild(c);});p.querySelectorAll('.x').forEach(x=>{x.onclick=()=>{pending.splice(parseInt(x.getAttribute('data-i'),10),1);renderPending();};});}
-function doSend(){const t=q('inp').value.trim();if((!t&&!pending.length)||!CUR)return;const urls=pending.map(m=>m.url);q('inp').value='';q('inp').style.height='40px';pending=[];renderPending();fetch(API+'?action=send&k='+encodeURIComponent(KEY),{method:'POST',body:JSON.stringify({to:CUR,body:t,mediaUrls:urls})}).then(r=>r.json()).then(d=>{loadThread();if(d&&d.error)alert('Send failed: '+d.error);});}
+function doSend(){const t=q('inp').value.trim();if((!t&&!pending.length)||!CUR)return;const urls=pending.map(m=>m.url);q('inp').value='';q('inp').style.height='42px';pending=[];renderPending();fetch(API+'?action=send&k='+encodeURIComponent(KEY),{method:'POST',body:JSON.stringify({to:CUR,body:t,mediaUrls:urls})}).then(r=>r.json()).then(d=>{loadThread();if(d&&d.error)alert('Send failed: '+d.error);});}
 function onFiles(ev){const files=ev.target.files;if(!files)return;Array.prototype.forEach.call(files,f=>{const rd=new FileReader();rd.onload=()=>{const b64=(rd.result+'').split(',')[1];fetch(API+'?action=upload&k='+encodeURIComponent(KEY),{method:'POST',body:JSON.stringify({name:f.name,contentType:f.type,dataBase64:b64})}).then(r=>r.json()).then(d=>{if(d&&d.url){pending.push({url:d.url,name:f.name,type:f.type});renderPending();}else{alert('Upload failed: '+((d&&d.error)||'error'));}});};rd.readAsDataURL(f);});ev.target.value='';}
 q('back').onclick=showList;q('sendbtn').onclick=doSend;q('attach').onclick=()=>q('file').click();q('file').onchange=onFiles;
-q('inp').addEventListener('input',function(){this.style.height='40px';this.style.height=Math.min(this.scrollHeight,120)+'px';});
+q('inp').addEventListener('input',function(){this.style.height='42px';this.style.height=Math.min(this.scrollHeight,120)+'px';});
 q('inp').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}});
 const params=new URLSearchParams(location.search);const c=params.get('c');
 ensureKey();
-if(c)openThread(c,null,'unknown',null,null);else showList();
+if(c)openThread(c,null,'unknown',null,null,null);else showList();
 </script>
 </body></html>
