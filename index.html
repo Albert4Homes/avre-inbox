@@ -1,46 +1,97 @@
 <!doctype html>
-<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
+<html lang='en'><head>
+<meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
 <title>AVRE Inbox</title>
 <style>
-* { box-sizing:border-box; }
-body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f4f5f7; color:#111; }
-header { background:#0b5cff; color:#fff; padding:12px 16px; font-weight:600; font-size:18px; position:sticky; top:0; display:flex; align-items:center; gap:12px; z-index:5; }
-header .back { cursor:pointer; font-size:22px; display:none; }
-#list .row { background:#fff; border-bottom:1px solid #eee; padding:12px 16px; cursor:pointer; }
-#list .row .n { font-weight:600; margin-bottom:2px; }
-#list .row .s { color:#666; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#thread { display:none; padding:12px; padding-bottom:84px; }
-#msgs { display:flex; flex-direction:column; }
-.msg { max-width:80%; padding:8px 12px; border-radius:14px; margin:5px 0; font-size:15px; white-space:pre-wrap; word-wrap:break-word; }
-.in { background:#e6e7ea; align-self:flex-start; }
-.out { background:#0b5cff; color:#fff; margin-left:auto; }
-#composer { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #ddd; padding:8px; display:none; gap:8px; }
-#composer textarea { flex:1; resize:none; border:1px solid #ccc; border-radius:18px; padding:9px 12px; font-size:15px; height:40px; }
-#composer button { background:#0b5cff; color:#fff; border:none; border-radius:18px; padding:0 18px; font-weight:600; font-size:15px; }
-.empty { padding:28px; text-align:center; color:#888; }
+:root{--blue:#2563eb;--bg:#f2f3f7;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e6e9f0;}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+#app{max-width:760px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:var(--bg)}
+header{background:var(--blue);color:#fff;padding:13px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 8px rgba(0,0,0,.14);position:sticky;top:0;z-index:10}
+header .back{cursor:pointer;font-size:23px;display:none;line-height:1}
+header .h-meta{display:flex;flex-direction:column;min-width:0}
+header .h-title{font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .h-sub{font-size:12px;opacity:.85}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;vertical-align:middle;margin-left:2px}
+.b-broker{background:#fef3c7;color:#92400e}
+.b-agent{background:#dbeafe;color:#1e40af}
+.b-admin{background:#ede9fe;color:#5b21b6}
+.b-partner{background:#ccfbf1;color:#0f766e}
+.b-client{background:#dcfce7;color:#166534}
+.b-unknown{background:#e2e8f0;color:#475569}
+#list{flex:1;overflow-y:auto}
+.row{display:flex;gap:12px;align-items:center;padding:11px 14px;background:var(--card);border-bottom:1px solid var(--line);cursor:pointer}
+.row:active{background:#f6f8fc}
+.avatar{width:46px;height:46px;border-radius:50%;flex:0 0 46px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.row .mid{flex:1;min-width:0}
+.row .top{display:flex;align-items:center;gap:6px}
+.row .nm{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .snip{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.row .tm{color:var(--muted);font-size:11px;flex:0 0 auto;align-self:flex-start;margin-top:3px}
+#thread{flex:1;overflow-y:auto;padding:14px 12px;display:none;flex-direction:column}
+.msg{max-width:76%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.35;white-space:pre-wrap;word-wrap:break-word;margin:3px 0}
+.msg.in{background:#fff;color:var(--ink);align-self:flex-start;border:1px solid var(--line);border-bottom-left-radius:5px}
+.msg.out{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:5px}
+.msg img{max-width:230px;border-radius:12px;display:block;margin:3px 0}
+.msg a.file{color:inherit;text-decoration:underline;font-size:14px}
+#composer{display:none;gap:8px;align-items:flex-end;padding:8px;background:var(--card);border-top:1px solid var(--line)}
+#pending{display:none;gap:6px;flex-wrap:wrap;padding:6px 10px 0;background:var(--card)}
+.chip{background:#eef2ff;border:1px solid #c7d2fe;border-radius:9px;padding:4px 8px;font-size:12px;display:flex;gap:6px;align-items:center;max-width:170px}
+.chip img{width:26px;height:26px;object-fit:cover;border-radius:5px}
+.chip span.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .x{cursor:pointer;color:#64748b;font-weight:700}
+#inp{flex:1;resize:none;border:1px solid #cbd5e1;border-radius:20px;padding:9px 14px;font-size:15px;max-height:120px;height:40px;font-family:inherit;outline:none}
+#inp:focus{border-color:var(--blue)}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:none;font-size:20px;cursor:pointer;flex:0 0 40px;display:flex;align-items:center;justify-content:center}
+#attach{background:#eef2ff;color:var(--blue)}
+#sendbtn{background:var(--blue);color:#fff}
+.empty{padding:44px 20px;text-align:center;color:var(--muted)}
 </style></head>
 <body>
-<header><span class='back' id='back'>&#8592;</span><span id='title'>AVRE Inbox</span></header>
-<div id='list'></div>
-<div id='thread'><div id='msgs'></div></div>
-<div id='composer'><textarea id='inp' placeholder='Type a reply...'></textarea><button id='send'>Send</button></div>
+<div id='app'>
+  <header>
+    <span class='back' id='back'>&#8592;</span>
+    <div class='h-meta'><span class='h-title' id='title'>AVRE Inbox</span><span class='h-sub' id='subtitle'></span></div>
+  </header>
+  <div id='list'></div>
+  <div id='thread'></div>
+  <div id='pending'></div>
+  <div id='composer'>
+    <button class='iconbtn' id='attach' title='Attach photo, GIF or PDF'>+</button>
+    <textarea id='inp' rows='1' placeholder='Message...'></textarea>
+    <button class='iconbtn' id='sendbtn' title='Send'>&#8593;</button>
+    <input type='file' id='file' accept='image/*,application/pdf' style='display:none' multiple>
+  </div>
+</div>
 <script>
-var API = 'https://ppqxqrfoyguwtuzlbsfb.supabase.co/functions/v1/inbox';
-var KEY = localStorage.getItem('avre_inbox_key') || '';
-var CUR = null, timer = null;
-function q(id){ return document.getElementById(id); }
-function ensureKey(){ if (!KEY){ KEY = prompt('Enter AVRE inbox access key') || ''; if (KEY) localStorage.setItem('avre_inbox_key', KEY); } }
-function api(qs){ return fetch(API + '?' + qs + '&k=' + encodeURIComponent(KEY)).then(function(r){ if (r.status === 401){ localStorage.removeItem('avre_inbox_key'); KEY = ''; alert('Wrong key. Reload and try again.'); } return r.json(); }); }
-function esc(t){ var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
-function showList(){ CUR = null; if (timer) clearInterval(timer); q('thread').style.display = 'none'; q('composer').style.display = 'none'; q('list').style.display = 'block'; q('back').style.display = 'none'; q('title').textContent = 'AVRE Inbox'; loadList(); }
-function loadList(){ ensureKey(); api('action=list').then(function(d){ var el = q('list'); if (!d || !d.conversations || d.conversations.length === 0){ el.innerHTML = '<div class=empty>No conversations yet.</div>'; return; } el.innerHTML = ''; d.conversations.forEach(function(c){ var row = document.createElement('div'); row.className = 'row'; row.innerHTML = '<div class=n>' + esc(c.contact_pretty) + '</div><div class=s>' + esc(c.last_body) + '</div>'; row.onclick = function(){ openThread(c.contact); }; el.appendChild(row); }); }); }
-function openThread(contact){ CUR = contact; q('list').style.display = 'none'; q('thread').style.display = 'block'; q('composer').style.display = 'flex'; q('back').style.display = 'inline'; loadThread(); if (timer) clearInterval(timer); timer = setInterval(loadThread, 6000); }
-function loadThread(){ ensureKey(); api('action=thread&c=' + encodeURIComponent(CUR)).then(function(d){ if (!d) return; q('title').textContent = d.contact_pretty || 'Conversation'; var m = q('msgs'); m.innerHTML = ''; (d.messages || []).forEach(function(x){ var b = document.createElement('div'); b.className = 'msg ' + (x.direction === 'inbound' ? 'in' : 'out'); b.textContent = x.body; m.appendChild(b); }); window.scrollTo(0, document.body.scrollHeight); }); }
-function doSend(){ var t = q('inp').value.trim(); if (!t || !CUR) return; q('inp').value = ''; fetch(API + '?action=send&k=' + encodeURIComponent(KEY), { method:'POST', body:JSON.stringify({ to:CUR, body:t }) }).then(function(r){ return r.json(); }).then(function(d){ loadThread(); if (d && d.error) alert('Send failed: ' + d.error); }); }
-q('back').onclick = showList; q('send').onclick = doSend;
-q('inp').addEventListener('keydown', function(e){ if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); doSend(); } });
-var params = new URLSearchParams(location.search); var c = params.get('c');
+var API='https://ppqxqrfoyguwtuzlbsfb.supabase.co/functions/v1/inbox';
+var KEY=localStorage.getItem('avre_inbox_key')||'';
+var CUR=null,timer=null,pending=[];
+function q(id){return document.getElementById(id)}
+function ensureKey(){if(!KEY){KEY=prompt('Enter AVRE inbox access key')||'';if(KEY)localStorage.setItem('avre_inbox_key',KEY);}}
+function api(qs){return fetch(API+'?'+qs+'&k='+encodeURIComponent(KEY)).then(function(r){if(r.status===401){localStorage.removeItem('avre_inbox_key');KEY='';alert('Wrong key. Reload the page.');}return r.json();});}
+function esc(t){var d=document.createElement('div');d.textContent=(t==null?'':t);return d.innerHTML;}
+function initials(s){s=(s||'').trim();if(!s)return '#';var p=s.split(' ').filter(Boolean);var a=p[0]?p[0][0]:'';var b=p[1]?p[1][0]:'';return (a+b).toUpperCase();}
+function hue(s){var h=0;s=s||'x';for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return h;}
+function avatar(name,phone){var t=name||phone||'#';return '<div class=avatar style='background:hsl('+hue(t)+',52%,54%)'>'+esc(initials(name||''))+(name?'':'#')+'</div>';}
+function badge(kind,sub){if(kind==='roster'){var r=(sub||'').toLowerCase();var cls='b-agent';if(r.indexOf('broker')>=0||r.indexOf('owner')>=0)cls='b-broker';else if(r.indexOf('admin')>=0)cls='b-admin';else if(r.indexOf('partner')>=0||r.indexOf('lender')>=0||r.indexOf('attorney')>=0)cls='b-partner';return '<span class='badge '+cls+''>'+esc(sub||'Team')+'</span>';}if(kind==='customer')return '<span class='badge b-client'>Client</span>';return '<span class='badge b-unknown'>Unknown</span>';}
+function tshort(ts){try{var d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});return d.toLocaleDateString([],{month:'short',day:'numeric'});}catch(e){return '';}}
+function isImg(m){var t=(m.type||'').toLowerCase(),u=(m.url||'').toLowerCase();if(t.indexOf('image')>=0)return true;return u.indexOf('.jpg')>=0||u.indexOf('.jpeg')>=0||u.indexOf('.png')>=0||u.indexOf('.gif')>=0||u.indexOf('.webp')>=0;}
+function mediaHtml(m){if(isImg(m))return '<img src=''+encodeURI(m.url)+'' onerror='this.style.display=none'>';return '<a class=file target=_blank href=''+encodeURI(m.url)+''>&#128206; Attachment</a>';}
+function showList(){CUR=null;if(timer)clearInterval(timer);q('thread').style.display='none';q('composer').style.display='none';q('pending').style.display='none';q('list').style.display='block';q('back').style.display='none';q('title').textContent='AVRE Inbox';q('subtitle').textContent='';loadList();}
+function loadList(){ensureKey();api('action=list').then(function(d){var el=q('list');if(!d||!d.conversations||!d.conversations.length){el.innerHTML='<div class=empty>No conversations yet.<br>New texts to (305) 928-7328 will appear here.</div>';return;}el.innerHTML='';d.conversations.forEach(function(c){var nm=c.label||c.contact_pretty;var row=document.createElement('div');row.className='row';row.innerHTML=avatar(c.label,c.contact_pretty)+'<div class=mid><div class=top><span class=nm>'+esc(nm)+'</span>'+badge(c.kind,c.sub)+'</div><div class=snip>'+esc(c.last_body)+'</div></div><span class=tm>'+tshort(c.last_at)+'</span>';row.onclick=function(){openThread(c.contact,c.label,c.kind,c.sub,c.contact_pretty);};el.appendChild(row);});});}
+function setHeader(label,ph,kind,sub){q('title').innerHTML=esc(label||ph||'Conversation')+' '+badge(kind,sub);var s='';if(label&&ph)s=ph;if(kind==='customer'&&sub)s=(s?s+'  ·  ':'')+sub;q('subtitle').textContent=s;}
+function openThread(contact,label,kind,sub,ph){CUR=contact;pending=[];renderPending();q('list').style.display='none';q('thread').style.display='flex';q('composer').style.display='flex';q('back').style.display='inline';setHeader(label,ph,kind,sub);loadThread();if(timer)clearInterval(timer);timer=setInterval(loadThread,6000);}
+function loadThread(){ensureKey();api('action=thread&c='+encodeURIComponent(CUR)).then(function(d){if(!d)return;setHeader(d.label,d.contact_pretty,d.kind,d.sub);var el=q('thread');el.innerHTML='';(d.messages||[]).forEach(function(x){var b=document.createElement('div');b.className='msg '+(x.direction==='inbound'?'in':'out');var html='';(x.media||[]).forEach(function(m){html+=mediaHtml(m);});if(x.body)html+=esc(x.body);b.innerHTML=html;el.appendChild(b);});el.scrollTop=el.scrollHeight;});}
+function renderPending(){var p=q('pending');if(!pending.length){p.style.display='none';p.innerHTML='';return;}p.style.display='flex';p.innerHTML='';pending.forEach(function(m,i){var c=document.createElement('div');c.className='chip';c.innerHTML=((m.type||'').indexOf('image')>=0?'<img src=''+m.url+''>':'&#128206;')+'<span class=nm>'+esc(m.name||'file')+'</span><span class=x data-i='+i+'>&times;</span>';p.appendChild(c);});Array.prototype.forEach.call(p.querySelectorAll('.x'),function(x){x.onclick=function(){pending.splice(parseInt(x.getAttribute('data-i'),10),1);renderPending();};});}
+function doSend(){var t=q('inp').value.trim();if((!t&&!pending.length)||!CUR)return;var urls=pending.map(function(m){return m.url;});q('inp').value='';q('inp').style.height='40px';pending=[];renderPending();fetch(API+'?action=send&k='+encodeURIComponent(KEY),{method:'POST',body:JSON.stringify({to:CUR,body:t,mediaUrls:urls})}).then(function(r){return r.json();}).then(function(d){loadThread();if(d&&d.error)alert('Send failed: '+d.error);});}
+function onFiles(ev){var files=ev.target.files;if(!files)return;Array.prototype.forEach.call(files,function(f){var rd=new FileReader();rd.onload=function(){var b64=(rd.result+'').split(',')[1];fetch(API+'?action=upload&k='+encodeURIComponent(KEY),{method:'POST',body:JSON.stringify({name:f.name,contentType:f.type,dataBase64:b64})}).then(function(r){return r.json();}).then(function(d){if(d&&d.url){pending.push({url:d.url,name:f.name,type:f.type});renderPending();}else{alert('Upload failed: '+((d&&d.error)||'error'));}});};rd.readAsDataURL(f);});ev.target.value='';}
+q('back').onclick=showList;q('sendbtn').onclick=doSend;q('attach').onclick=function(){q('file').click();};q('file').onchange=onFiles;
+q('inp').addEventListener('input',function(){this.style.height='40px';this.style.height=Math.min(this.scrollHeight,120)+'px';});
+q('inp').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}});
+var params=new URLSearchParams(location.search);var c=params.get('c');
 ensureKey();
-if (c) openThread(c); else showList();
+if(c)openThread(c,null,'unknown',null,null);else showList();
 </script>
 </body></html>
