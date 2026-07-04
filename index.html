@@ -43,8 +43,11 @@ header .brand{font-weight:800;font-size:19px}
 .msg.sched .cx{cursor:pointer;text-decoration:underline;color:var(--acc);margin-left:8px;font-weight:700}
 .daysep{align-self:center;color:var(--muted);font-size:11.5px;font-weight:600;margin:12px 0 6px}
 #schedbar{display:none;gap:8px;align-items:center;padding:8px 12px;background:var(--card);border-top:1px solid var(--line)}
-#schedwhen{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;background:var(--bg);color:var(--ink)}
-#schedgo{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer}
+#schedday,#schedtime{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;background:var(--bg);color:var(--ink);outline:none;font-family:inherit}
+#schedday{flex:1;min-width:0}
+#schedtime{width:120px}
+#schedday:focus,#schedtime:focus{border-color:var(--acc)}
+#schedgo{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
 #schedx{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
 #composer{display:none;gap:8px;align-items:flex-end;padding:8px 10px;background:var(--card);border-top:1px solid var(--line)}
 #pending{display:none;gap:6px;flex-wrap:wrap;padding:8px 12px 0;background:var(--card)}
@@ -82,7 +85,7 @@ header .brand{font-weight:800;font-size:19px}
   <div id='list'></div>
   <div id='thread'></div>
   <div id='pending'></div>
-  <div id='schedbar'><input type='datetime-local' id='schedwhen'><button id='schedgo'>Schedule</button><button id='schedx'>&times;</button></div>
+  <div id='schedbar'><select id='schedday'></select><input type='time' id='schedtime' list='hours' step='60'><datalist id='hours'><option value='07:00'></option><option value='08:00'></option><option value='09:00'></option><option value='10:00'></option><option value='11:00'></option><option value='12:00'></option><option value='13:00'></option><option value='14:00'></option><option value='15:00'></option><option value='16:00'></option><option value='17:00'></option><option value='18:00'></option><option value='19:00'></option><option value='20:00'></option><option value='21:00'></option></datalist><button id='schedgo'>Schedule</button><button id='schedx'>&times;</button></div>
   <div id='composer'>
     <button class='iconbtn' id='attach' title='Attach photo, GIF or PDF'>+</button>
     <button class='iconbtn' id='clock' title='Schedule for later'>&#128337;</button>
@@ -98,6 +101,7 @@ const API='https://ppqxqrfoyguwtuzlbsfb.supabase.co/functions/v1/inbox';
 let KEY=localStorage.getItem('avre_inbox_key')||'';
 let CUR=null,CURP='',timer=null,pending=[],convsRaw=[],convMap={},FILTER='all',SEARCH='',listSig='',threadSig='';
 const q=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
 function toast(m){const t=q('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3000);}
 function ensureKey(){if(!KEY){KEY=prompt('Enter AVRE inbox access key')||'';if(KEY)localStorage.setItem('avre_inbox_key',KEY);}}
 function api(qs){return fetch(API+'?'+qs+'&k='+encodeURIComponent(KEY)).then(r=>{if(r.status===401){localStorage.removeItem('avre_inbox_key');KEY='';toast('Wrong key - reload the page');return null;}return r.json();}).catch(()=>{toast('Connection issue - retrying');return null;});}
@@ -124,8 +128,9 @@ function loadThread(){ensureKey();api('action=thread&c='+encodeURIComponent(CUR)
 function renderPending(){const p=q('pending');if(!pending.length){p.style.display='none';p.innerHTML='';return;}p.style.display='flex';p.innerHTML=pending.map((m,i)=>`<div class='chip'>${(m.type||'').includes('image')?`<img src='${m.url}'>`:'&#128206;'}<span class='nm'>${esc(m.name||'file')}</span><span class='x' data-i='${i}'>&times;</span></div>`).join('');p.querySelectorAll('.x').forEach(x=>{x.onclick=()=>{pending.splice(parseInt(x.getAttribute('data-i'),10),1);renderPending();};});}
 function doSend(){const t=q('inp').value.trim();if((!t&&!pending.length)||!CUR)return;const urls=pending.map(m=>m.url);const body=t;q('inp').value='';q('inp').style.height='42px';const el=q('thread');const b=document.createElement('div');b.className='msg out';b.style.opacity='.55';let h='';pending.forEach(m=>{h+=(m.type||'').includes('image')?`<img src='${m.url}'>`:('&#128206; '+esc(m.name||'file'));});if(body)h+=esc(body);b.innerHTML=h;el.appendChild(b);el.scrollTop=el.scrollHeight;pending=[];renderPending();post('action=send',{to:CUR,body:body,mediaUrls:urls}).then(d=>{threadSig='';loadThread();if(d&&d.error)toast('Send failed: '+d.error);});}
 function onFiles(ev){const files=ev.target.files;if(!files)return;Array.prototype.forEach.call(files,f=>{const rd=new FileReader();rd.onload=()=>{const b64=(rd.result+'').split(',')[1];post('action=upload',{name:f.name,contentType:f.type,dataBase64:b64}).then(d=>{if(d&&d.url){pending.push({url:d.url,name:f.name,type:f.type});renderPending();}else toast('Upload failed');});};rd.readAsDataURL(f);});ev.target.value='';}
-function toggleSched(){const b=q('schedbar');if(b.style.display==='flex'){b.style.display='none';return;}const dt=new Date(Date.now()+3600000);dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());q('schedwhen').value=dt.toISOString().slice(0,16);b.style.display='flex';}
-function doSchedule(){const t=q('inp').value.trim();const when=q('schedwhen').value;if(!when){toast('Pick a date and time');return;}if(!t&&!pending.length){toast('Type a message first');return;}const urls=pending.map(m=>m.url);post('action=schedule',{to:CUR,body:t,mediaUrls:urls,send_at:new Date(when).toISOString()}).then(d=>{if(d&&d.ok){q('inp').value='';q('inp').style.height='42px';pending=[];renderPending();q('schedbar').style.display='none';threadSig='';loadThread();toast('Message scheduled');}else toast('Schedule failed');});}
+function buildDays(){const sel=q('schedday');sel.innerHTML='';const now=new Date();for(let i=0;i<30;i++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);const val=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());const lab=i===0?'Today':i===1?'Tomorrow':d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});const o=document.createElement('option');o.value=val;o.textContent=lab;sel.appendChild(o);}}
+function toggleSched(){const b=q('schedbar');if(b.style.display==='flex'){b.style.display='none';return;}buildDays();const dt=new Date(Date.now()+3600000);q('schedtime').value=pad(dt.getHours())+':00';b.style.display='flex';}
+function doSchedule(){const t=q('inp').value.trim();const day=q('schedday').value;const time=q('schedtime').value;if(!day||!time){toast('Pick a date and time');return;}if(!t&&!pending.length){toast('Type a message first');return;}const send=new Date(day+'T'+time);if(isNaN(send.getTime())){toast('Invalid time');return;}if(send.getTime()<Date.now()-60000){toast('Pick a future time');return;}const urls=pending.map(m=>m.url);post('action=schedule',{to:CUR,body:t,mediaUrls:urls,send_at:send.toISOString()}).then(d=>{if(d&&d.ok){q('inp').value='';q('inp').style.height='42px';pending=[];renderPending();q('schedbar').style.display='none';threadSig='';loadThread();toast('Scheduled '+schedFmt(send.toISOString()));}else toast('Schedule failed');});}
 function openEdit(){const c=convMap[CUR]||{};q('ename').value=c.label||'';q('erole').value=(c.kind==='roster')?(c.sub||''):'';q('modal').style.display='flex';q('ename').focus();}
 function saveEdit(){const name=q('ename').value.trim();const role=q('erole').value.trim();post('action=roster_add',{phone:CUR,name:name||null,role:role||null}).then(d=>{if(d&&d.ok){q('modal').style.display='none';listSig='';threadSig='';loadThread();loadList(false);toast('Saved');}else toast('Save failed');});}
 q('back').onclick=showList;q('sendbtn').onclick=doSend;q('attach').onclick=()=>q('file').click();q('file').onchange=onFiles;q('clock').onclick=toggleSched;q('schedgo').onclick=doSchedule;q('schedx').onclick=()=>q('schedbar').style.display='none';
